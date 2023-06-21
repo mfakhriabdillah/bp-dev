@@ -1,0 +1,39 @@
+name: Lint CI
+
+on: pull_request
+
+jobs:
+  backend:
+    name: Backend service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install packages
+        working-directory: backend
+        run: npm ci
+      - name: Formatting, linting
+        working-directory: backend
+        run: |
+          npm run lint
+  frontend:
+    name: Frontend service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install packages
+        working-directory: frontend
+        run: npm ci
+      - name: Formatting, linting
+        working-directory: frontend
+        run: |
+          npm run lint
