@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-bp-app-fe
+  labels:
+    app: bp-app-fe
+data:
+  .env: |
+    # APP
+    REACT_APP_BACKEND_URL=http://backend-production.mfakhriabdillah.my.id/
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bp-app-fe
+  labels:
+    app: bp-app-fe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bp-app-fe
+  template:
+    metadata:
+      labels:
+        app: bp-app-fe
+    spec:
+      volumes:
+      - name: env-bp-app-fe
+        configMap:
+          name: configmap-bp-app-fe
+      containers:
+      - name: frontend
+        image: us-central1-docker.pkg.dev/studidevops-bigpro-fakhri/bp-studidevops/app-fe-prod:${BUILD_NUMBER}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: env-bp-app-fe
+          mountPath: "/app/.env"
+          subPath: ".env"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: bp-app-fe
+  ports:
+  - port: 3000
+    protocol: "TCP"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-fe
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: frontend-production.mfakhriabdillah.my.id
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000

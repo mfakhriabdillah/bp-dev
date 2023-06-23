@@ -1,0 +1,89 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: staging
+  labels:
+    name: staging
+    env: staging
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-bp-app-be
+  labels:
+    app: bp-app-be
+data:
+  .env: |
+    # APP
+    NODE_ENV=development
+    BASE_URL_PORT=5000
+
+    # Database
+    DATABASE_USERNAME=people
+    DATABASE_PASSWORD=c0c0d0tB4u
+    DATABASE_DATABASE=db-staging
+    DATABASE_HOST=34.170.27.209
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bp-app-be
+  labels:
+    app: bp-app-be
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bp-app-be
+  template:
+    metadata:
+      labels:
+        app: bp-app-be
+    spec:
+      volumes:
+      - name: env-bp-app-be
+        configMap:
+          name: configmap-bp-app-be
+      containers:
+      - name: backend
+        image: us-central1-docker.pkg.dev/studidevops-bigpro-fakhri/bp-studidevops/app-be-staging:${BUILD_NUMBER}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: env-bp-app-be
+          mountPath: "/app/.env"
+          subPath: ".env"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: bp-app-be
+  ports:
+  - port: 5000
+    protocol: "TCP"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-be
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /users/$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: backend-staging.mfakhriabdillah.my.id
+      http:
+        paths:
+          - path: /users(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 5000
