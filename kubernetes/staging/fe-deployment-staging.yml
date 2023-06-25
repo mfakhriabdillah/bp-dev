@@ -8,7 +8,7 @@ metadata:
 data:
   .env: |
     # APP
-    REACT_APP_BACKEND_URL=http://backend-staging.mfakhriabdillah.my.id/
+    REACT_APP_BACKEND_URL=http://backend-staging/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -63,7 +63,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: frontend-staging.mfakhriabdillah.my.id
+    - host: frontend-staging
       http:
         paths:
           - path: /(.*)

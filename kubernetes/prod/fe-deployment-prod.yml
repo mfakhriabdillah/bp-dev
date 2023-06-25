@@ -63,7 +63,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: frontend-production.mfakhriabdillah.my.id
+    - host: frontend-production
       http:
         paths:
           - path: /(.*)
