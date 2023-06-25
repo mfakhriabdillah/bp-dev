@@ -68,22 +68,22 @@ spec:
   - port: 5000
     protocol: "TCP"
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress-be
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /users/$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: backend-staging
-      http:
-        paths:
-          - path: /users(/|$)(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 5000
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-be
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /users/$2
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#     - host: backend-staging
+#       http:
+#         paths:
+#           - path: /users(/|$)(.*)
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: backend
+#                 port:
+#                   number: 5000
